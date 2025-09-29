@@ -20,12 +20,12 @@
 	<input type="hidden" name="stageId" value="{$stageId|escape}" />
 	<input type="hidden" name="submissionId" value="{$submissionId|escape}" />
 
-	{fbvFormSection title="editor.review.personalMessageToReviewer" for="personalMessage"}
+	{fbvFormSection title="stageParticipants.notify.message" for="personalMessage"}
 		{fbvElement type="textarea" name="personalMessage" id="personalMessage" value=$personalMessage rich=true}
 	{/fbvFormSection}
 
 	{fbvFormSection for="skipEmail" size=$fbvStyles.size.MEDIUM list=true}
-		{fbvElement type="checkbox" id="skipEmail" name="skipEmail" label="editor.review.skipEmail"}
+		{fbvElement type="checkbox" id="skipEmail" name="skipEmail" label="email.skip"}
 	{/fbvFormSection}
 
 	{fbvFormButtons submitText="grid.action.remove"}
