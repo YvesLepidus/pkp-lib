@@ -46,18 +46,27 @@ class RemoveParticipantForm extends Form {
 	 */
 	function initData() {
 		$request = Application::get()->getRequest();
-		$user = $request->getUser();
-		$submission = $this->_submission;
+        $user = $request->getUser();
+        $submission = $this->_submission;
+        $userTobeRemovedId = $this->_stageAssignment->getUserId();
+        $userDao = DAORegistry::getDAO('UserDAO'); /* @var $userDao UserDAO */
+        $userToBeRemoved = $userDao->getById($userTobeRemovedId);
+        if (!$userToBeRemoved) {
+            return;
+        }
 
-		$defaultMessage = __('editor.submission.removeStageParticipant') . ":\n\n";
-		$defaultMessage .= __('submission.title') . ': ' . $submission->getLocalizedTitle() . "\n\n";
-		$defaultMessage .= $user->getContactSignature();
+        $defaultMessage = __('editor.submission.removeStageParticipant.email.body', [
+            'userName' => $userToBeRemoved->getFullName(),
+            'contextName' => $request->getContext()->getLocalizedName(),
+            'submissionTitle' => $submission->getLocalizedTitle()
+        ]);
+        $defaultMessage .= $user->getContactSignature();
 
-		$this->setData('assignmentId', $this->_stageAssignment->getId());
-		$this->setData('stageId', $this->_stageId);
-		$this->setData('submissionId', $submission->getId());
-		$this->setData('personalMessage', $defaultMessage);
-		$this->setData('skipEmail', false);
+        $this->setData('assignmentId', $this->_stageAssignment->getId());
+        $this->setData('stageId', $this->_stageId);
+        $this->setData('submissionId', $submission->getId());
+        $this->setData('personalMessage', $defaultMessage);
+        $this->setData('skipEmail', false);
 	}
 
 	/**
