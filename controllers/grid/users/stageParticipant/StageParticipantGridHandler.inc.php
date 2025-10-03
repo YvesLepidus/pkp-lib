@@ -463,40 +463,12 @@ class StageParticipantGridHandler extends CategoryGridHandler {
 			return new JSONMessage(true, $form->fetch($request));
 		}
 
-		// Execute: send email if requested
 		$form->execute();
 
-		// Now remove the assignment and update notifications (mirror deleteParticipant)
 		$stageAssignmentDao->deleteObject($stageAssignment);
 
 		$notificationMgr = new NotificationManager();
-		import('classes.workflow.EditorDecisionActionsManager');
-		$notificationMgr->updateNotification(
-			$request,
-			(new EditorDecisionActionsManager())->getStageNotifications(),
-			null,
-			ASSOC_TYPE_SUBMISSION,
-			$submission->getId()
-		);
 
-		if ($stageId == WORKFLOW_STAGE_ID_EDITING ||
-			$stageId == WORKFLOW_STAGE_ID_PRODUCTION) {
-
-			$notificationMgr->updateNotification(
-				$request,
-				array(
-					NOTIFICATION_TYPE_ASSIGN_COPYEDITOR,
-					NOTIFICATION_TYPE_AWAITING_COPYEDITS,
-					NOTIFICATION_TYPE_ASSIGN_PRODUCTIONUSER,
-					NOTIFICATION_TYPE_AWAITING_REPRESENTATIONS,
-				),
-				null,
-				ASSOC_TYPE_SUBMISSION,
-				$submission->getId()
-			);
-		}
-
-		// Log removal (already handled in deleteParticipant, repeat for this flow)
 		$userDao = DAORegistry::getDAO('UserDAO'); /* @var $userDao UserDAO */
 		$assignedUser = $userDao->getById($stageAssignment->getUserId());
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
@@ -504,9 +476,8 @@ class StageParticipantGridHandler extends CategoryGridHandler {
 		import('lib.pkp.classes.log.SubmissionLog');
 		SubmissionLog::logEvent($request, $submission, SUBMISSION_LOG_REMOVE_PARTICIPANT, 'submission.event.participantRemoved', array('name' => $assignedUser->getFullName(), 'username' => $assignedUser->getUsername(), 'userGroupName' => $userGroup->getLocalizedName()));
 
-		// Success notification for current user
 		$currentUser = $request->getUser();
-		$notificationMgr->createTrivialNotification($currentUser->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => __('notification.removedStageParticipant')));
+		$notificationMgr->createTrivialNotification($currentUser->getId(), NOTIFICATION_TYPE_SUCCESS);
 
 		return DAO::getDataChangedEvent($stageAssignment->getUserGroupId());
 	}
